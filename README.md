@@ -1,4 +1,4 @@
-# drawonline
+# drawonline.io
 
 ## Description
 Simple HTML web site to use as whiteboard    
