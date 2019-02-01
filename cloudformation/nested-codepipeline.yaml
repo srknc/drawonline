@@ -1,0 +1,90 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+
+
+
+
+
+  CodePipelineServiceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "codepipeline.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        -
+          PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action: "codecommit:GetBranch"
+                Resource: "*"
+
+
+
+  WebSiteCodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn:
+        Fn::GetAtt:
+        - CodePipelineServiceRole
+        - Arn
+      Stages:
+        -
+          Name: Source
+          Actions:
+            -
+              Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Provider: GitHub
+                Version: 1
+              Configuration:
+                Branch: master
+                OAuthToken: xxxxxxxxxxxx
+                Owner: srknc
+                PollForSourceChanges: true
+                Repo: drawonline #TODO: should go to parameters
+              OutputArtifacts:
+                -
+                  Name: SourceOutput
+              RunOrder: 1
+      ArtifactStore:
+        Type: S3
+        Location:
+          Ref: BucketAdministrativeName
+          #
+          # Name: Release
+          # Actions:
+          #   -
+          #     Name: ReleaseAction
+          #     InputArtifacts:
+          #       -
+          #         Name: SourceOutput
+          #     ActionTypeId:
+          #       Category: Deploy
+          #       Owner: AWS
+          #       Version: 1
+          #       Provider: CodeDeploy
+          #     Configuration:
+          #       ApplicationName:
+          #         Ref: CodeDeployName # TODO: reference CodeDeploy does not exist
+          #       DeploymentGroupName:
+          #         Ref: DeploymentGroupName # TODO: ??
+          #     RunOrder: 1
+
+Parameters:
+ BucketAdministrativeName:
+   Description: administarative purpose bucket
+   Type: String

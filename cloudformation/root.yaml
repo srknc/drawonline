@@ -1,0 +1,40 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  nestedSkeletonStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/cloudformation-1548978758/nested-skeleton.yaml
+
+  nestedWebSiteStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/cloudformation-1548978758/nested-website.yaml
+      Parameters:
+          RootDomainName: !Ref RootDomainName
+          HostedZoneId: !Ref HostedZoneId
+
+  nestedCodePipeline:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/cloudformation-1548978758/nested-codepipeline.yaml
+      Parameters:
+          BucketAdministrativeName: !Ref BucketAdministrativeName
+
+
+  nestedApplication3Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/cloudformation-1548978758/nested-application3.yaml
+
+
+Parameters:
+ RootDomainName:
+   Description: Domain name for the website
+   Type: String
+ HostedZoneId:
+   Description: hosted zone id for the domain
+   Type: String
+ BucketAdministrativeName:
+   Description: administarative purpose bucket
+   Type: String
