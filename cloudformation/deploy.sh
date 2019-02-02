@@ -13,7 +13,7 @@ region=$(aws configure list | grep region | awk {'print $2'})
 # upload templates
 for i in $(ls *.yaml)
 do
-  aws s3 cp $i s3://$bucket_administrative/ &
+  aws s3 cp $i s3://$bucket_administrative/ 
 done
 
 
