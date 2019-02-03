@@ -11,7 +11,7 @@ root_domain_name=drawonline.io
 region=$(aws configure list | grep region | awk {'print $2'})
 
 # upload yaml files
-aws s3 cp . s3://$bucket_administrative/ --include="*.yaml" --recursive
+aws s3 cp . s3://$bucket_administrative/ --exclude="deploy.sh" --recursive
 
 
 
