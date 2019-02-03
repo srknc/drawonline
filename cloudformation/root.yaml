@@ -20,13 +20,7 @@ Resources:
       TemplateURL: https://s3.amazonaws.com/cloudformation-1548978758/nested-codepipeline.yaml
       Parameters:
           BucketAdministrativeName: !Ref BucketAdministrativeName
-
-
-  nestedApplication3Stack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: https://s3.amazonaws.com/cloudformation-1548978758/nested-application3.yaml
-
+          RootDomainName: !Ref RootDomainName
 
 Parameters:
  RootDomainName:

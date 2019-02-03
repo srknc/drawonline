@@ -10,11 +10,9 @@ root_domain_name=drawonline.io
 # get current region
 region=$(aws configure list | grep region | awk {'print $2'})
 
-# upload templates
-for i in $(ls *.yaml)
-do
-  aws s3 cp $i s3://$bucket_administrative/ 
-done
+# upload yaml files
+aws s3 cp . s3://$bucket_administrative/ --include="*.yaml" --recursive
+
 
 
 # update cloudformation

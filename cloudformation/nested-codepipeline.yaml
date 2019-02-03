@@ -1,11 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-
-
-
-
-
   CodePipelineServiceRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -94,7 +89,6 @@ Resources:
               - s3:DeleteObject
               Resource: arn:aws:s3:::elasticbeanstalk*
               Effect: Allow
-            Version: '2012-10-17'
 
   CodeBuildServiceRole:
     Type: "AWS::IAM::Role"
@@ -111,7 +105,7 @@ Resources:
       Path: "/"
       Policies:
         -
-          PolicyName: "root"
+          PolicyName: "CodeBuildServiceRole"
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
@@ -156,7 +150,17 @@ Resources:
               - ecr:GetAuthorizationToken
               Resource:
               - "*"
-
+            - Sid: S3All
+              Effect: Allow
+              Action:
+              - s3:*
+              Resource:
+               Fn::Join:
+                 - ""
+                 -
+                   - "arn:aws:s3:::"
+                   - !Ref RootDomainName
+                   - "/*"
 
   CodeBuildS3CopyFiles:
     Type: AWS::CodeBuild::Project
@@ -178,20 +182,25 @@ Resources:
           "
           version: 0.2 \n
           env: \n
-            - variables: \n
-              - foo: bar \n
+            \ variables: \n
+              \ \ foo: bar \n
           phases: \n
-            - install: \n
-              - commands: \n
-                  - credentials=$(curl http://169.254.170.2$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI) \n
-                  - export AWS_ACCESS_KEY_ID=$(echo $credentials | jq -r /'.AccessKeyId/') \n
-                  - export AWS_SECRET_ACCESS_KEY=$(echo $credentials | jq -r /'.SecretAccessKey/') \n
-                  - export AWS_SECURITY_TOKEN=$(echo $credentials | jq -r /'.Token/') \n
-                  #- export AWS_ROLE=xxxxxxxxxxxx \n
-                  - export AWS_SESSION_TOKEN=$AWS_SECURITY_TOKEN \n
-                  - aws s3 ls \n
+            \ install: \n
+              \ \  commands: \n
+              \ \ \     - yum install -y jq aws-cli \n
+            \ build: \n
+              \ \  commands: \n
+              \ \ \     - credentials=$(curl http://169.254.170.2$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI) \n
+              \ \ \     - export AWS_ACCESS_KEY_ID=$(echo $credentials | jq -r '.AccessKeyId') \n
+              \ \ \     - export AWS_SECRET_ACCESS_KEY=$(echo $credentials | jq -r '.SecretAccessKey') \n
+              \ \ \     - export AWS_SECURITY_TOKEN=$(echo $credentials | jq -r '.Token') \n
+              \ \ \     #- export AWS_ROLE=xxxxxxxxxxxx \n
+              \ \ \     - export AWS_SESSION_TOKEN=$AWS_SECURITY_TOKEN \n
+              \ \ \     - ls\n
+              \ \ \     - aws s3 cp public_html/ s3://drawonline.io/ --recursive\n  \n
+              \ \ \     - aws s3 ls drawonline.io\n #TODO: use variable
           "
-      TimeoutInMinutes: 10
+      TimeoutInMinutes: 5
 
 
   WebSiteCodePipeline:
@@ -247,4 +256,7 @@ Resources:
 Parameters:
  BucketAdministrativeName:
    Description: administarative purpose bucket
+   Type: String
+ RootDomainName:
+   Description: Domain name for your website (example.com)
    Type: String
